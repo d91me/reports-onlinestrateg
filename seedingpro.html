@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивное Руководство: Посев и Аналитика Telegram</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Placeholder Comments Required by Prompt */
+        <!-- Chosen Palette: Warm Neutrals (Sand/Beige) with Soft Indigo Accents. Designed for clarity and professional calm. -->
+        <!-- Application Structure Plan:
+             The app is structured as a linear educational workflow (Sourcing -> Analysis -> Execution -> Reporting).
+             1. Sourcing Strategy: Interactive comparison of methods (Exchanges vs. Manual).
+             2. Analytics Lab: A visual simulator showing how to read channel charts (Good vs. Bad signals).
+             3. Tools & Resources: A curated library of tools.
+             4. Client Deliverables: An interactive mock table explaining key metrics.
+             5. Legal/Marking: A checklist for compliance.
+             This structure transforms the Q&A format into a logical process flow.
+        -->
+        <!-- Visualization & Content Choices:
+             1. Goal: Compare Sourcing Methods -> Viz: Grouped Bar Chart (Time vs. Cost) -> Interaction: Toggle views.
+             2. Goal: Explain Analytics -> Viz: Line Chart (Hourly View Dynamics) -> Interaction: Switch between 'Organic' and 'Bot' patterns to teach pattern recognition.
+             3. Goal: Report Structure -> Viz: Interactive HTML Table -> Interaction: Hover to define metrics (CPM, ERR).
+             NO SVG/Mermaid used.
+        -->
+        <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcfbf9; /* Warm neutral background */
+            color: #1f2937;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        /* Strict Chart Container Styling as per requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Max width constraint */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        /* Navigation Active State */
+        .nav-item.active {
+            border-bottom: 2px solid #6366f1; /* Indigo-500 */
+            color: #4f46e5; /* Indigo-600 */
+            font-weight: 600;
+        }
+
+        /* Card Hover Effects */
+        .interactive-card {
+            transition: all 0.3s ease;
+        }
+        .interactive-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Table Styling */
+        .metric-cell {
+            cursor: help;
+            border-bottom: 1px dashed #9ca3af;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold text-indigo-900">Seeding<span class="text-indigo-500">Pro</span></span>
+                    </div>
+                    <nav class="hidden sm:ml-6 sm:flex sm:space-x-8" id="main-nav">
+                        <!-- Navigation items injected by JS -->
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Nav -->
+        <div class="sm:hidden flex overflow-x-auto px-4 pb-2 space-x-4 border-b border-gray-100" id="mobile-nav">
+            <!-- Mobile nav items injected by JS -->
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div id="app-content" class="space-y-8">
+            <!-- Content injected by JS -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">
+                Интерактивное исследование для задач посева. 2025.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- DATA STORE ---
+        const appData = {
+            sections: [
+                { id: 'sourcing', title: '1. Поиск и Биржи', icon: '🔍' },
+                { id: 'analytics', title: '2. Аналитика', icon: '📊' },
+                { id: 'tools', title: '3. Сервисы', icon: '🛠️' },
+                { id: 'reporting', title: '4. Таблица Клиента', icon: '📋' },
+                { id: 'legal', title: '5. Маркировка', icon: '⚖️' }
+            ],
+            sourcing: {
+                exchanges: [
+                    { name: 'Telega.in', type: 'Биржа', pros: ['Безопасная сделка', 'Удобный каталог', 'Автоматизация'], cons: ['Комиссия сервиса', 'Не все каналы есть'] },
+                    { name: 'Epicstars', type: 'Платформа', pros: ['Разные соцсети', 'Формат заданий'], cons: ['Меньше база TG'] }
+                ],
+                manual: {
+                    title: 'Ручной Поиск (Outreach)',
+                    strategies: [
+                        { title: 'Каталоги TGStat/Telemetr', desc: 'Поиск по категориям и ключевым словам в аналитических сервисах.' },
+                        { title: 'Похожие каналы', desc: 'Изучение папки "Похожие каналы" внутри самого Telegram.' },
+                        { title: 'Взаимный пиар', desc: 'Анализ того, кого рекламируют конкуренты (через вкладку "Упоминания").' }
+                    ]
+                }
+            },
+            analytics: {
+                metrics: [
+                    { name: 'ERR (Engagement Rate by Reach)', formula: '(Реакции + Комменты + Репосты) / Охват * 100%', desc: 'Вовлеченность аудитории. Норма для TG: 10-20%.' },
+                    { name: 'CPM (Cost Per Mille)', formula: 'Стоимость / (Охват / 1000)', desc: 'Цена за 1000 показов. Позволяет сравнивать дорогие и дешевые каналы.' },
+                    { name: 'CPV (Cost Per View)', formula: 'Стоимость / Просмотры', desc: 'Цена за один просмотр.' }
+                ]
+            },
+            clientTable: [
+                { name: 'Новости IT', link: '@example_it', subs: 45000, reach: 12000, err: '15%', cpm: '800₽', price: '9 600₽', format: '1/24', manager: '@admin1' },
+                { name: 'Крипто Инсайт', link: '@crypto_ex', subs: 12000, reach: 3500, err: '8%', cpm: '1500₽', price: '5 250₽', format: '2/48', manager: '@manager_x' },
+                { name: 'Дизайн Блог', link: '@design_daily', subs: 85000, reach: 25000, err: '22%', cpm: '600₽', price: '15 000₽', format: 'Без удаления', manager: '@art_dir' }
+            ]
+        };
+
+        // --- STATE MANAGEMENT ---
+        let currentState = {
+            activeSection: 'sourcing',
+            chartInstance: null,
+            comparisonChartInstance: null
+        };
+
+        // --- DOM ELEMENTS & INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNavigation();
+            renderContent('sourcing');
+        });
+
+        // --- NAVIGATION LOGIC ---
+        function renderNavigation() {
+            const navContainer = document.getElementById('main-nav');
+            const mobileNavContainer = document.getElementById('mobile-nav');
+            
+            navContainer.innerHTML = '';
+            mobileNavContainer.innerHTML = '';
+
+            appData.sections.forEach(section => {
+                // Desktop
+                const link = document.createElement('a');
+                link.href = '#';
+                link.className = `nav-item px-3 pt-1 inline-flex items-center text-sm font-medium border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 ${currentState.activeSection === section.id ? 'active' : ''}`;
+                link.innerText = section.title;
+                link.onclick = (e) => { e.preventDefault(); navigateTo(section.id); };
+                navContainer.appendChild(link);
+
+                // Mobile
+                const mLink = document.createElement('a');
+                mLink.href = '#';
+                mLink.className = `whitespace-nowrap py-2 px-3 text-sm font-medium rounded-md ${currentState.activeSection === section.id ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600'}`;
+                mLink.innerText = `${section.icon} ${section.title}`;
+                mLink.onclick = (e) => { e.preventDefault(); navigateTo(section.id); };
+                mobileNavContainer.appendChild(mLink);
+            });
+        }
+
+        function navigateTo(sectionId) {
+            currentState.activeSection = sectionId;
+            renderNavigation();
+            renderContent(sectionId);
+        }
+
+        // --- CONTENT RENDERING ---
+        function renderContent(sectionId) {
+            const container = document.getElementById('app-content');
+            container.innerHTML = ''; // Clear content
+
+            // Destroy old charts
+            if (currentState.chartInstance) { currentState.chartInstance.destroy(); currentState.chartInstance = null; }
+            if (currentState.comparisonChartInstance) { currentState.comparisonChartInstance.destroy(); currentState.comparisonChartInstance = null; }
+
+            switch (sectionId) {
+                case 'sourcing': renderSourcing(container); break;
+                case 'analytics': renderAnalytics(container); break;
+                case 'tools': renderTools(container); break;
+                case 'reporting': renderReporting(container); break;
+                case 'legal': renderLegal(container); break;
+            }
+        }
+
+        // --- SECTION 1: SOURCING ---
+        function renderSourcing(container) {
+            const header = createSectionHeader('Стратегия Посева: Биржи против Ручного Поиска', 
+                'Первый этап посева — формирование базы каналов. Здесь мы разбираем, где искать качественные площадки и какой метод эффективнее для ваших задач.');
+            
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-1 lg:grid-cols-2 gap-8';
+
+            // Col 1: Text & Cards
+            const infoCol = document.createElement('div');
+            infoCol.className = 'space-y-6';
+            
+            // Exchanges Card
+            const exCard = document.createElement('div');
+            exCard.className = 'bg-white p-6 rounded-xl shadow-sm border border-gray-100';
+            exCard.innerHTML = `
+                <h3 class="text-xl font-bold text-gray-900 mb-4">🏛️ Биржи (Автоматизация)</h3>
+                <p class="text-gray-600 mb-4 text-sm">Идеально для быстрых запусков и безопасных сделок. Основные игроки:</p>
+                <div class="space-y-3">
+                    ${appData.sourcing.exchanges.map(ex => `
+                        <div class="p-3 bg-indigo-50 rounded-lg">
+                            <div class="font-semibold text-indigo-900">${ex.name}</div>
+                            <div class="text-xs text-green-700 mt-1">👍 ${ex.pros.join(', ')}</div>
+                            <div class="text-xs text-red-600 mt-1">👎 ${ex.cons.join(', ')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            infoCol.appendChild(exCard);
+
+            // Manual Card
+            const manCard = document.createElement('div');
+            manCard.className = 'bg-white p-6 rounded-xl shadow-sm border border-gray-100';
+            manCard.innerHTML = `
+                <h3 class="text-xl font-bold text-gray-900 mb-4">🕵️ Ручной Поиск (Качество)</h3>
+                <p class="text-gray-600 mb-4 text-sm">Позволяет найти эксклюзивные каналы и договориться о скидках. Как искать каналы, которых нет на бирже:</p>
+                <ul class="space-y-2">
+                    ${appData.sourcing.manual.strategies.map(s => `
+                        <li class="flex items-start">
+                            <span class="mr-2 mt-1 text-indigo-500">•</span>
+                            <div>
+                                <span class="font-medium text-gray-800">${s.title}</span>
+                                <p class="text-xs text-gray-500">${s.desc}</p>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+            infoCol.appendChild(manCard);
+
+            // Col 2: Visualization
+            const vizCol = document.createElement('div');
+            vizCol.className = 'bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center';
+            vizCol.innerHTML = `
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Сравнение Эффективности</h3>
+                    <p class="text-sm text-gray-500">Биржи экономят время, но повышают стоимость контакта (за счет комиссии). Ручной поиск дольше, но часто качественнее.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="sourcingChart"></canvas>
+                </div>
+                <div class="mt-4 flex justify-center space-x-4">
+                    <button id="btn-cost" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-md text-sm font-medium hover:bg-indigo-200 transition">💰 Сравнить Стоимость</button>
+                    <button id="btn-time" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition">⏱️ Сравнить Время</button>
+                </div>
+            `;
+
+            grid.appendChild(infoCol);
+            grid.appendChild(vizCol);
+            container.appendChild(header);
+            container.appendChild(grid);
+
+            // Init Chart
+            initSourcingChart();
+        }
+
+        // --- SECTION 2: ANALYTICS ---
+        function renderAnalytics(container) {
+            const header = createSectionHeader('Глубокая Аналитика: Как не слить бюджет', 
+                'Ключевой этап. Учимся отличать живую аудиторию от ботов. Смотрим на динамику просмотров и ключевые показатели (ERR, CPM).');
+
+            const layout = document.createElement('div');
+            layout.className = 'grid grid-cols-1 xl:grid-cols-3 gap-8';
+
+            // Metrics Sidebar
+            const metricsPanel = document.createElement('div');
+            metricsPanel.className = 'xl:col-span-1 space-y-4';
+            metricsPanel.innerHTML = '<h3 class="text-lg font-bold text-gray-900 mb-2">Ключевые Метрики</h3>';
+            
+            appData.analytics.metrics.forEach(m => {
+                const mCard = document.createElement('div');
+                mCard.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-300 transition cursor-pointer';
+                mCard.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-indigo-700">${m.name}</span>
+                    </div>
+                    <div class="text-xs font-mono bg-gray-50 p-1 rounded mb-2 text-gray-600">${m.formula}</div>
+                    <p class="text-sm text-gray-600">${m.desc}</p>
+                `;
+                metricsPanel.appendChild(mCard);
+            });
+
+            // Interactive Chart Area
+            const chartArea = document.createElement('div');
+            chartArea.className = 'xl:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100';
+            chartArea.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">Анализ почасовой динамики</h3>
+                        <p class="text-sm text-gray-500">Как выглядит график просмотров поста за 24 часа?</p>
+                    </div>
+                    <div class="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+                        <button onclick="updateAnalyticsChart('organic')" class="px-3 py-1 bg-white text-indigo-700 shadow-sm rounded-md text-sm font-medium">✅ Органика</button>
+                        <button onclick="updateAnalyticsChart('fake')" class="px-3 py-1 text-gray-600 hover:text-red-600 text-sm font-medium">❌ Накрутка</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="analyticsChart"></canvas>
+                </div>
+                <div id="chart-desc" class="mt-4 p-3 bg-blue-50 text-blue-800 text-sm rounded-lg">
+                    💡 <b>Органический график:</b> Резкий пик в первый час после публикации, затем плавное экспоненциальное снижение (хвост).
+                </div>
+            `;
+
+            layout.appendChild(metricsPanel);
+            layout.appendChild(chartArea);
+            container.appendChild(header);
+            container.appendChild(layout);
+
+            initAnalyticsChart();
+        }
+
+        // --- SECTION 3: TOOLS ---
+        function renderTools(container) {
+            const header = createSectionHeader('Инструментарий Маркетолога', 
+                'Сервисы, без которых невозможно провести качественную аналитику и подбор.');
+            
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-1 md:grid-cols-3 gap-6';
+
+            const tools = [
+                { name: 'TGStat', role: 'Аналитика & Поиск', icon: '📊', desc: 'Бесплатная базовая статистика. Отлично подходит для проверки динамики подписчиков и цитируемости (ИЦ).', feature: 'Используйте "Поиск по постам" для отслеживания конкурентов.' },
+                { name: 'Telemetr', role: 'Глубокий Анализ', icon: '🔬', desc: 'Платный, но более мощный инструмент. Позволяет видеть удаленные посты, смену названий и детальную почасовую статистику.', feature: 'Ищите "Кто кого рекламировал" для поиска связок.' },
+                { name: 'Crosser Bot', role: 'Аудит Аудитории', icon: '🤖', desc: 'Бот для удаления накрученных ботов и анализа пересечения аудитории между каналами.', feature: 'Обязательно проверьте свой канал перед продажей рекламы.' }
+            ];
+
+            tools.forEach(tool => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded-xl shadow-sm border border-gray-100 interactive-card flex flex-col h-full';
+                card.innerHTML = `
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-3">${tool.icon}</span>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900">${tool.name}</h3>
+                            <span class="text-xs uppercase font-bold text-indigo-500 tracking-wider">${tool.role}</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4 flex-grow">${tool.desc}</p>
+                    <div class="bg-indigo-50 p-3 rounded-lg text-xs text-indigo-800">
+                        <strong>Pro Tip:</strong> ${tool.feature}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            container.appendChild(header);
+            container.appendChild(grid);
+        }
+
+        // --- SECTION 4: REPORTING ---
+        function renderReporting(container) {
+            const header = createSectionHeader('Медиаплан (Пример Таблицы)', 
+                'Как предоставить данные клиенту? Пример готовой структуры отчета. Наведите на заголовки столбцов для подсказки.');
+            
+            const tableWrapper = document.createElement('div');
+            tableWrapper.className = 'overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200';
+            
+            const table = document.createElement('table');
+            table.className = 'min-w-full divide-y divide-gray-200';
+            
+            // Table Header
+            const thead = document.createElement('thead');
+            thead.className = 'bg-gray-50';
+            thead.innerHTML = `
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Название канала">Канал</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Ссылка на канал">Link</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" title="Количество подписчиков">Subs</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help border-b-2 border-indigo-100" title="Средний охват 1 поста">Охват (Avg)</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help border-b-2 border-indigo-100" title="Engagement Rate by Reach (Вовлеченность)">ERR</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help border-b-2 border-indigo-100" title="Cost Per Mille (Цена за 1000 показов)">CPM</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" title="Цена размещения">Цена</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" title="Формат размещения (1 час в топе, 24 в ленте)">Формат</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Контакт менеджера">Менеджер</th>
+                </tr>
+            `;
+            
+            // Table Body
+            const tbody = document.createElement('tbody');
+            tbody.className = 'bg-white divide-y divide-gray-200';
+            
+            appData.clientTable.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-indigo-600 hover:text-indigo-900">${row.link}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">${row.subs.toLocaleString()}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right font-semibold">${row.reach.toLocaleString()}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">${row.err}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">${row.cpm}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-bold">${row.price}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">${row.format}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${row.manager}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            tableWrapper.appendChild(table);
+
+            const note = document.createElement('div');
+            note.className = 'mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-yellow-800';
+            note.innerHTML = '<strong>Совет:</strong> Всегда добавляйте прогноз (KPI) по охватам, чтобы клиент понимал, что он покупает не просто "пост", а конкретное количество глаз.';
+
+            container.appendChild(header);
+            container.appendChild(tableWrapper);
+            container.appendChild(note);
+        }
+
+        // --- SECTION 5: LEGAL ---
+        function renderLegal(container) {
+            const header = createSectionHeader('Маркировка Рекламы (РФ)', 
+                'Соблюдение закона "О рекламе". Как не получить штраф.');
+
+            const steps = [
+                { step: '1', title: 'Регистрация в ОРД', text: 'Выберите Оператора Рекламных Данных (VK ОРД, Ozon ОРД, Яндекс и др.). Зарегистрируйте там себя и клиента (договор).' },
+                { step: '2', title: 'Получение Токена (erid)', text: 'Перед публикацией загрузите креатив (текст/картинку) в ОРД. Получите уникальный идентификатор (например, erid: 2Vtz...).' },
+                { step: '3', title: 'Публикация', text: 'В самом посте (лучше в начале или конце) укажите: "Реклама. ООО «Название», ИНН 1234567890. erid: 2Vtz..."' },
+                { step: '4', title: 'Отчетность', text: 'В конце месяца загрузите в ОРД акт выполненных работ и статистику по просмотрам (разоллокация).' }
+            ];
+
+            const grid = document.createElement('div');
+            grid.className = 'grid gap-6 md:grid-cols-2';
+
+            steps.forEach(s => {
+                const item = document.createElement('div');
+                item.className = 'flex items-start bg-white p-5 rounded-lg border border-gray-200';
+                item.innerHTML = `
+                    <div class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 font-bold text-lg mr-4">
+                        ${s.step}
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-1">${s.title}</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed">${s.text}</p>
+                    </div>
+                `;
+                grid.appendChild(item);
+            });
+
+            container.appendChild(header);
+            container.appendChild(grid);
+        }
+
+        // --- HELPER FUNCTIONS ---
+        function createSectionHeader(title, subtitle) {
+            const div = document.createElement('div');
+            div.className = 'mb-8';
+            div.innerHTML = `
+                <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight">${title}</h2>
+                <p class="text-lg text-gray-500 max-w-3xl">${subtitle}</p>
+            `;
+            return div;
+        }
+
+        // --- CHART LOGIC ---
+        
+        function initSourcingChart() {
+            const ctx = document.getElementById('sourcingChart').getContext('2d');
+            
+            // Data for "Cost Comparison" (Default)
+            const costData = {
+                labels: ['Биржи', 'Ручной поиск'],
+                datasets: [
+                    {
+                        label: 'Стоимость (CPM)',
+                        data: [1200, 800], // Биржи дороже из-за комиссии
+                        backgroundColor: ['rgba(239, 68, 68, 0.6)', 'rgba(34, 197, 94, 0.6)'],
+                        borderColor: ['rgba(239, 68, 68, 1)', 'rgba(34, 197, 94, 1)'],
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            const timeData = {
+                labels: ['Биржи', 'Ручной поиск'],
+                datasets: [
+                    {
+                        label: 'Затраты времени (часы)',
+                        data: [2, 12], // Ручной поиск дольше
+                        backgroundColor: ['rgba(34, 197, 94, 0.6)', 'rgba(239, 68, 68, 0.6)'], // Green means good (less time)
+                        borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)'],
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            currentState.comparisonChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: costData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { display: true }
+                    }
+                }
+            });
+
+            // Buttons
+            document.getElementById('btn-cost').onclick = () => {
+                currentState.comparisonChartInstance.data = costData;
+                currentState.comparisonChartInstance.update();
+                updateBtnState('btn-cost', 'btn-time');
+            };
+            document.getElementById('btn-time').onclick = () => {
+                currentState.comparisonChartInstance.data = timeData;
+                currentState.comparisonChartInstance.update();
+                updateBtnState('btn-time', 'btn-cost');
+            };
+
+            function updateBtnState(activeId, inactiveId) {
+                document.getElementById(activeId).className = 'px-4 py-2 bg-indigo-100 text-indigo-700 rounded-md text-sm font-medium hover:bg-indigo-200 transition';
+                document.getElementById(inactiveId).className = 'px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition';
+            }
+        }
+
+        function initAnalyticsChart() {
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            
+            // Hourly labels (24h)
+            const labels = Array.from({length: 24}, (_, i) => `${i+1}ч`);
+
+            // Organic Data: Peak at start, exponential decay
+            const organicData = [1000, 450, 300, 200, 150, 120, 100, 90, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
+            
+            // Fake Data: "Stairs" or weird spikes
+            const fakeData = [100, 100, 100, 100, 500, 500, 500, 500, 100, 100, 100, 800, 800, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100];
+
+            currentState.chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Просмотры за час',
+                        data: organicData,
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Просмотров: ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Global function for onclick access
+        window.updateAnalyticsChart = function(type) {
+            if (!currentState.chartInstance) return;
+            
+            const organicData = [1000, 450, 300, 200, 150, 120, 100, 90, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
+            const fakeData = [100, 100, 100, 100, 500, 500, 500, 500, 100, 100, 100, 800, 800, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100];
+            const desc = document.getElementById('chart-desc');
+
+            if (type === 'organic') {
+                currentState.chartInstance.data.datasets[0].data = organicData;
+                currentState.chartInstance.data.datasets[0].borderColor = '#4f46e5';
+                currentState.chartInstance.data.datasets[0].backgroundColor = 'rgba(79, 70, 229, 0.1)';
+                desc.innerHTML = '💡 <b>Органический график:</b> Резкий пик в первый час после публикации, затем плавное снижение интереса. Естественное поведение ленты.';
+                desc.className = 'mt-4 p-3 bg-blue-50 text-blue-800 text-sm rounded-lg';
+            } else {
+                currentState.chartInstance.data.datasets[0].data = fakeData;
+                currentState.chartInstance.data.datasets[0].borderColor = '#ef4444';
+                currentState.chartInstance.data.datasets[0].backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                desc.innerHTML = '⚠️ <b>Накрутка ("Лесенка"):</b> Неестественные ровные отрезки или внезапные пики в середине ночи/дня без репостов. Характерно для ботов.';
+                desc.className = 'mt-4 p-3 bg-red-50 text-red-800 text-sm rounded-lg';
+            }
+            currentState.chartInstance.update();
+        };
+
+    </script>
+</body>
+</html>
