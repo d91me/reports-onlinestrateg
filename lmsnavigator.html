@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Navigator: Сравнительный анализ платформ</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts: Noto Sans for clean, professional look -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Base Settings */
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #F5F5F0; /* Warm neutral background (Beige/Bone) */
+            color: #334155; /* Slate-700 for text */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E2E8F0; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94A3B8; 
+            border-radius: 4px;
+        }
+
+        /* Card Hover Effects */
+        .lms-card {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .lms-card:hover {
+            transform: translateY(-4px);
+            border-bottom-color: #F97316; /* Orange-500 subtle accent */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Chart Container Strict Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 1024px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        /* Wizard Selection State */
+        .wizard-option.selected {
+            background-color: #FFEDD5; /* Orange-100 */
+            border-color: #F97316;
+            color: #9A3412;
+        }
+    </style>
+
+    <!-- Chosen Palette: Warm Neutrals (Background #F5F5F0) with Slate text and Orange (#F97316) / Teal (#14B8A6) accents for data and actions. -->
+    
+    <!-- Application Structure Plan: 
+         1. Hero Section: Context setting regarding the LMS landscape.
+         2. Recommendation Wizard: Interactive form to filter users by intent (Beginner vs Pro, Mobile vs Web).
+         3. Interactive Analytics: 
+            - Radar Chart for Feature balance (Marketing vs Learning Experience).
+            - Bar Chart for Cost simulation.
+         4. Knowledge Base (Grid): Detailed cards for each of the 10 requested platforms with filtering capabilities.
+         This structure moves from "Guidance" (Wizard) to "Analysis" (Charts) to "Raw Data" (Cards), facilitating decision-making at different levels.
+    -->
+
+    <!-- Visualization & Content Choices:
+         - Radar Chart: Chosen to compare multi-dimensional aspects (UX, Marketing, Price, Mobile) simultaneously for multiple platforms.
+         - Bar Chart: Used for cost projection because pricing tiers vary wildly by student count.
+         - Interactive Cards: Efficiently display qualitative data (Pros/Cons) without cluttering the screen.
+         - Methodology: Data is synthesized based on general market knowledge of these specific Russian/Global platforms.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-lg">L</div>
+                <h1 class="text-xl font-bold text-slate-800 tracking-tight">LMS Navigator <span class="text-slate-400 font-normal text-sm ml-2">Сравнительный анализ 2024</span></h1>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#wizard" class="text-slate-600 hover:text-orange-500 font-medium transition">Подбор</a>
+                <a href="#analytics" class="text-slate-600 hover:text-orange-500 font-medium transition">Сравнение</a>
+                <a href="#catalog" class="text-slate-600 hover:text-orange-500 font-medium transition">Каталог</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        
+        <!-- Intro Section -->
+        <section class="bg-slate-50 border-b border-slate-200 py-12">
+            <div class="max-w-4xl mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">Выбор платформы для онлайн-школы</h2>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    Рынок EdTech предлагает десятки решений, от простых конструкторов курсов до сложных маркетинговых комбайнов. 
+                    В этом исследовании мы сравнили 10 ключевых игроков (GetCourse, SOHO, Zenclass и др.), чтобы помочь вам найти баланс между функциональностью, бюджетом и удобством.
+                    Используйте инструменты ниже для моделирования вашего сценария.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 1: Recommendation Wizard -->
+        <section id="wizard" class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-slate-800 border-l-4 border-orange-500 pl-4">Мастер подбора</h3>
+                <p class="mt-2 text-slate-600">Ответьте на 3 вопроса, чтобы алгоритм подсветил платформы, наиболее подходящие под вашу бизнес-модель.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <!-- Q1 -->
+                    <div>
+                        <h4 class="font-semibold text-slate-800 mb-3">1. Ваш уровень и масштаб?</h4>
+                        <div class="space-y-2">
+                            <button onclick="updateWizardState('level', 'beginner')" class="wizard-option w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-orange-300 transition text-sm group" id="opt-beginner">
+                                <span class="font-bold block">Новичок / Старт</span>
+                                <span class="text-xs text-slate-500 group-hover:text-slate-600">Запуск первого курса, минимум настроек, низкий бюджет.</span>
+                            </button>
+                            <button onclick="updateWizardState('level', 'pro')" class="wizard-option w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-orange-300 transition text-sm group" id="opt-pro">
+                                <span class="font-bold block">Масштабирование / Профи</span>
+                                <span class="text-xs text-slate-500 group-hover:text-slate-600">Нужна воронка продаж, CRM, автоматизация и аналитика.</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div>
+                        <h4 class="font-semibold text-slate-800 mb-3">2. Приоритет в обучении?</h4>
+                        <div class="space-y-2">
+                            <button onclick="updateWizardState('focus', 'marketing')" class="wizard-option w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-orange-300 transition text-sm group" id="opt-marketing">
+                                <span class="font-bold block">Продажи и Маркетинг</span>
+                                <span class="text-xs text-slate-500 group-hover:text-slate-600">Всё в одном: рассылки, лендинги, автовебинары.</span>
+                            </button>
+                            <button onclick="updateWizardState('focus', 'learning')" class="wizard-option w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-orange-300 transition text-sm group" id="opt-learning">
+                                <span class="font-bold block">Методология и UX</span>
+                                <span class="text-xs text-slate-500 group-hover:text-slate-600">Красивые уроки, геймификация, удобство студента, мобильное приложение.</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div>
+                        <h4 class="font-semibold text-slate-800 mb-3">3. Тип контента?</h4>
+                        <div class="space-y-2">
+                            <button onclick="updateWizardState('content', 'async')" class="wizard-option w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-orange-300 transition text-sm group" id="opt-async">
+                                <span class="font-bold block">Курсы в записи</span>
+                                <span class="text-xs text-slate-500 group-hover:text-slate-600">Видеоуроки, тесты, домашние задания.</span>
+                            </button>
+                            <button onclick="updateWizardState('content', 'sync')" class="wizard-option w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:border-orange-300 transition text-sm group" id="opt-sync">
+                                <span class="font-bold block">Живое обучение / IT</span>
+                                <span class="text-xs text-slate-500 group-hover:text-slate-600">Вебинары, проверка кода, сложные форматы.</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wizard Result -->
+                <div id="wizard-result" class="bg-orange-50 rounded-xl p-6 hidden">
+                    <h4 class="text-lg font-bold text-orange-900 mb-2">Рекомендованные платформы:</h4>
+                    <p class="text-sm text-orange-800 mb-4">На основе ваших ответов, обратите внимание на:</p>
+                    <div id="recommendation-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Analytics & Charts -->
+        <section id="analytics" class="py-12 bg-white border-y border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800 border-l-4 border-teal-500 pl-4">Сравнительная аналитика</h3>
+                        <p class="mt-2 text-slate-600 max-w-2xl">
+                            Визуальное сравнение функциональности. Выберите платформы из списка ниже, чтобы обновить графики.
+                        </p>
+                    </div>
+                    
+                    <!-- Global Chart Filters -->
+                    <div class="flex flex-wrap gap-2" id="chart-toggles">
+                        <!-- Dynamically filled checkboxes -->
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    
+                    <!-- Radar Chart: Capabilities -->
+                    <div class="bg-slate-50 rounded-2xl p-6 shadow-inner">
+                        <h4 class="font-bold text-slate-700 mb-4 text-center">Профиль возможностей</h4>
+                        <div class="chart-container">
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                        <p class="text-xs text-center text-slate-500 mt-4">
+                            Сравнение по 5 ключевым метрикам: Маркетинг (CRM/Воронки), UX (Удобство ученика), Функционал (Гибкость), Мобайл (Приложение), Простота старта.
+                        </p>
+                    </div>
+
+                    <!-- Bar Chart: Pricing Simulation -->
+                    <div class="bg-slate-50 rounded-2xl p-6 shadow-inner">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-slate-700">Оценка затрат (мес.)</h4>
+                            <div class="text-right">
+                                <label class="text-xs font-bold text-slate-500 block">Активных учеников:</label>
+                                <span id="student-count-display" class="text-teal-600 font-bold text-lg">1000</span>
+                            </div>
+                        </div>
+                        
+                        <input type="range" id="student-slider" min="100" max="5000" step="100" value="1000" 
+                               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600 mb-6">
+
+                        <div class="chart-container">
+                            <canvas id="priceChart"></canvas>
+                        </div>
+                        <p class="text-xs text-center text-slate-500 mt-4">
+                            Приблизительная стоимость тарифа в рублях/мес. для выбранного числа учеников. Некоторые платформы берут % от оборота (учтено как среднее).
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Detailed Catalog -->
+        <section id="catalog" class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-slate-800 border-l-4 border-indigo-500 pl-4">Детальный обзор платформ</h3>
+                <p class="mt-2 text-slate-600">
+                    Нажмите на карточку для раскрытия (в данном демо вся информация видна сразу).
+                </p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex flex-wrap gap-3 mb-8" id="catalog-filters">
+                <button onclick="filterCatalog('all')" class="px-4 py-1.5 rounded-full bg-slate-800 text-white text-sm font-medium hover:bg-slate-700 transition">Все</button>
+                <button onclick="filterCatalog('crm')" class="px-4 py-1.5 rounded-full bg-white border border-slate-300 text-slate-600 text-sm font-medium hover:border-orange-500 hover:text-orange-500 transition">CRM Мощные</button>
+                <button onclick="filterCatalog('simple')" class="px-4 py-1.5 rounded-full bg-white border border-slate-300 text-slate-600 text-sm font-medium hover:border-teal-500 hover:text-teal-500 transition">Простой старт</button>
+                <button onclick="filterCatalog('mobile')" class="px-4 py-1.5 rounded-full bg-white border border-slate-300 text-slate-600 text-sm font-medium hover:border-indigo-500 hover:text-indigo-500 transition">Mobile Focus</button>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="lms-grid">
+                <!-- Cards injected by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">Генерация интерфейса исследования. Данные являются оценочными и основаны на публичной информации.</p>
+            <p class="text-xs text-slate-500 mt-2">&copy; 2024 LMS Navigator Project.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- DATA MODEL ---
+        // Synthetic data based on market positioning of the requested LMSs.
+        // Scores: 1-10 scale. 
+        // pricingType: 'tier' (step based) or 'percent' (revenue share/per active user).
+        
+        const lmsData = [
+            {
+                id: 'gc',
+                name: 'GetCourse',
+                tags: ['crm', 'automation', 'webinars'],
+                desc: 'Лидер рынка. "Комбайн" для больших школ. Включает мощную CRM, CMS, рассылки и процессы.',
+                stats: { marketing: 10, ux: 5, func: 10, mobile: 6, simple: 2 },
+                basePrice: 4400, // min tier
+                pricePer1000: 20000, // rough estimate
+                pros: ['Всё в одном (рассылки, CRM)', 'Огромный рынок специалистов', 'Гибкая автоматизация процессов'],
+                cons: ['Сложный интерфейс', 'Дорого на объемах', 'Слабое стандартное моб. приложение'],
+                bestFor: 'Крупные школы, Маркетологи'
+            },
+            {
+                id: 'soho',
+                name: 'SOHO.LMS',
+                tags: ['mobile', 'white-label', 'app'],
+                desc: 'Фокус на мобильном обучении и брендированных приложениях. Хорошо подходит для вовлечения.',
+                stats: { marketing: 6, ux: 9, func: 7, mobile: 10, simple: 7 },
+                basePrice: 3000,
+                pricePer1000: 15000,
+                pros: ['White-label приложения', 'Отличный UX на мобильных', 'Гибкая настройка обучения'],
+                cons: ['Слабее CRM чем у GC', 'Меньше интеграций'],
+                bestFor: 'Обучение через смартфон'
+            },
+            {
+                id: 'anti',
+                name: 'Антитренинги',
+                tags: ['gamification', 'crm', 'classic'],
+                desc: 'Надежная платформа с упором на геймификацию и защиту контента.',
+                stats: { marketing: 7, ux: 7, func: 8, mobile: 7, simple: 6 },
+                basePrice: 1500,
+                pricePer1000: 11000,
+                pros: ['Геймификация', 'Защита от скачивания', 'Хорошая техподдержка'],
+                cons: ['Дизайн интерфейса устарел', 'Меньше маркетинговых фишек'],
+                bestFor: 'Классические курсы'
+            },
+            {
+                id: 'axl',
+                name: 'AXL',
+                tags: ['crm', 'automation', 'modern'],
+                desc: 'Современный конкурент GetCourse. Акцент на архитектуру данных и скорость работы.',
+                stats: { marketing: 9, ux: 7, func: 9, mobile: 6, simple: 4 },
+                basePrice: 3500,
+                pricePer1000: 18000,
+                pros: ['Быстрая работа', 'Мощные боты и процессы', 'Современный UI админки'],
+                cons: ['Меньше готовых интеграций', 'Порог входа'],
+                bestFor: 'Технически сложные воронки'
+            },
+            {
+                id: 'zen',
+                name: 'Zenclass',
+                tags: ['simple', 'design', 'start'],
+                desc: 'Идеальный баланс простоты и защиты. Запуск школы за 30 минут.',
+                stats: { marketing: 4, ux: 9, func: 6, mobile: 7, simple: 10 },
+                basePrice: 2700,
+                pricePer1000: 3160, // Flat rate usually or very soft scaling
+                pros: ['Единый тариф (часто)', 'Встроенная защита видео', 'Очень понятный интерфейс'],
+                cons: ['Нет своей рассылки/CRM', 'Мало автоматизации'],
+                bestFor: 'Новички, Творческие курсы'
+            },
+            {
+                id: 'core',
+                name: 'Coreapp.ai',
+                tags: ['methodology', 'interactive', 'education'],
+                desc: 'Конструктор образовательных траекторий. Акцент на педагогический дизайн.',
+                stats: { marketing: 3, ux: 8, func: 7, mobile: 7, simple: 8 },
+                basePrice: 990,
+                pricePer1000: 8000,
+                pros: ['Разнообразие типов заданий', 'Адаптивное обучение', 'Бесплатный тариф для старта'],
+                cons: ['Слабый маркетинг модуль', 'Фокус на урок, а не школу'],
+                bestFor: 'Методисты, Учителя'
+            },
+            {
+                id: 'pruf',
+                name: 'Pruffme',
+                tags: ['webinars', 'sync', 'simple'],
+                desc: 'Экосистема для вебинаров, видеоконференций и курсов. Хорошо для синхронного обучения.',
+                stats: { marketing: 5, ux: 6, func: 7, mobile: 5, simple: 7 },
+                basePrice: 3500,
+                pricePer1000: 12000,
+                pros: ['Встроенные вебинары', 'Интерактивные доски', 'Тесты и опросы'],
+                cons: ['Интерфейс "на любителя"', 'LMS как доп. функция'],
+                bestFor: 'Смешанное обучение, Вебинары'
+            },
+            {
+                id: 'guru',
+                name: 'Gurucan',
+                tags: ['mobile', 'global', 'app'],
+                desc: 'Mobile-first платформа, ориентированная на международный рынок.',
+                stats: { marketing: 6, ux: 8, func: 6, mobile: 10, simple: 8 },
+                basePrice: 4900,
+                pricePer1000: 9900,
+                pros: ['Свое приложение в сторах', 'Поддержка подписок (Membership)', 'Современный дизайн'],
+                cons: ['Ограниченная кастомизация', 'Цена в валюте (иногда)'],
+                bestFor: 'Фитнес, Lifestyle, Membership'
+            },
+            {
+                id: 'step',
+                name: 'Stepik',
+                tags: ['it', 'code', 'marketplace'],
+                desc: 'Платформа для IT курсов с автопроверкой кода и математики. Работает как маркетплейс.',
+                stats: { marketing: 4, ux: 7, func: 9, mobile: 8, simple: 6 },
+                basePrice: 0, // Commission model mostly
+                pricePer1000: 5000, // Simulated commission
+                pros: ['Автопроверка кода', 'Огромная аудитория (каталог)', 'Бесплатно для открытых курсов'],
+                cons: ['Высокая комиссия с продаж', 'Специфичный дизайн'],
+                bestFor: 'IT курсы, Вузы'
+            },
+            {
+                id: 'edpro',
+                name: 'EdProBiz',
+                tags: ['corp', 'standard'],
+                desc: 'Корпоративное решение / классическая LMS для бизнеса (предположительная классификация).',
+                stats: { marketing: 5, ux: 6, func: 7, mobile: 5, simple: 5 },
+                basePrice: 5000,
+                pricePer1000: 15000,
+                pros: ['Стабильность', 'Стандартные функции LMS'],
+                cons: ['Меньше публичной информации', 'Enterprise фокус'],
+                bestFor: 'Корпоративное обучение'
+            }
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            selectedLMS: ['gc', 'zen', 'soho', 'axl'], // Default for comparison
+            wizard: {
+                level: null,
+                focus: null,
+                content: null
+            },
+            studentCount: 1000
+        };
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderToggles();
+            renderCatalog(lmsData);
+            initCharts();
+            updateCharts();
+            
+            // Listener for slider
+            document.getElementById('student-slider').addEventListener('input', (e) => {
+                state.studentCount = parseInt(e.target.value);
+                document.getElementById('student-count-display').innerText = state.studentCount;
+                updateCharts();
+            });
+        });
+
+        // --- WIZARD LOGIC ---
+        function updateWizardState(category, value) {
+            // UI Update
+            const options = document.querySelectorAll(`[id^="opt-"]`);
+            options.forEach(btn => {
+                if (btn.id.includes(value)) { // simplistic match logic
+                    btn.classList.add('selected');
+                } else if (btn.parentElement === document.getElementById(`opt-${value}`)?.parentElement) {
+                     // remove selected from siblings is harder with this selector logic, 
+                     // so let's use the category mapping logic:
+                }
+            });
+
+            // Clean siblings manually for better UI logic
+            if (category === 'level') {
+                document.getElementById('opt-beginner').classList.remove('selected');
+                document.getElementById('opt-pro').classList.remove('selected');
+            }
+            if (category === 'focus') {
+                document.getElementById('opt-marketing').classList.remove('selected');
+                document.getElementById('opt-learning').classList.remove('selected');
+            }
+            if (category === 'content') {
+                document.getElementById('opt-async').classList.remove('selected');
+                document.getElementById('opt-sync').classList.remove('selected');
+            }
+            
+            // Set new selection
+            document.getElementById(`opt-${value}`).classList.add('selected');
+            state.wizard[category] = value;
+
+            checkWizardCompletion();
+        }
+
+        function checkWizardCompletion() {
+            if (state.wizard.level && state.wizard.focus && state.wizard.content) {
+                const results = calculateRecommendations();
+                renderRecommendations(results);
+                document.getElementById('wizard-result').classList.remove('hidden');
+                document.getElementById('wizard-result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function calculateRecommendations() {
+            // Simple scoring algorithm
+            return lmsData.map(lms => {
+                let score = 0;
+                
+                // Level Logic
+                if (state.wizard.level === 'beginner') {
+                    score += lms.stats.simple * 2;
+                    if (lms.basePrice < 3000) score += 5;
+                } else { // pro
+                    score += lms.stats.marketing * 1.5;
+                    score += lms.stats.func * 1.5;
+                }
+
+                // Focus Logic
+                if (state.wizard.focus === 'marketing') {
+                    score += lms.stats.marketing * 2;
+                    if (lms.tags.includes('crm')) score += 5;
+                } else { // learning
+                    score += lms.stats.ux * 2;
+                    if (lms.tags.includes('methodology')) score += 5;
+                }
+
+                // Content Logic
+                if (state.wizard.content === 'sync') {
+                    if (lms.id === 'pruf' || lms.id === 'step' || lms.id === 'soho') score += 5;
+                } else {
+                    if (lms.id === 'zen' || lms.id === 'gc') score += 3;
+                }
+
+                return { ...lms, score };
+            }).sort((a, b) => b.score - a.score).slice(0, 3);
+        }
+
+        function renderRecommendations(results) {
+            const container = document.getElementById('recommendation-cards');
+            container.innerHTML = results.map(lms => `
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-orange-400">
+                    <div class="flex justify-between items-start mb-2">
+                        <h5 class="font-bold text-slate-800">${lms.name}</h5>
+                        <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-bold">${Math.round(lms.score)} pts</span>
+                    </div>
+                    <p class="text-xs text-slate-600 line-clamp-2">${lms.desc}</p>
+                    <button onclick="highlightLMS('${lms.id}')" class="mt-3 text-xs text-teal-600 font-bold hover:underline">Показать на графике</button>
+                </div>
+            `).join('');
+        }
+
+        function highlightLMS(id) {
+            if (!state.selectedLMS.includes(id)) {
+                state.selectedLMS.push(id);
+                // Update checkbox
+                const cb = document.querySelector(`input[value="${id}"]`);
+                if(cb) cb.checked = true;
+            }
+            // Scroll to chart
+            document.getElementById('analytics').scrollIntoView({ behavior: 'smooth' });
+            updateCharts();
+        }
+
+        // --- CATALOG & UI ---
+        function renderToggles() {
+            const container = document.getElementById('chart-toggles');
+            container.innerHTML = lmsData.map(lms => `
+                <label class="inline-flex items-center bg-white border border-slate-200 rounded-md px-2 py-1 cursor-pointer hover:bg-slate-50 text-xs select-none">
+                    <input type="checkbox" value="${lms.id}" class="form-checkbox h-3 w-3 text-teal-600 rounded mr-2" 
+                    ${state.selectedLMS.includes(lms.id) ? 'checked' : ''} onchange="toggleLMS('${lms.id}')">
+                    ${lms.name}
+                </label>
+            `).join('');
+        }
+
+        function toggleLMS(id) {
+            if (state.selectedLMS.includes(id)) {
+                state.selectedLMS = state.selectedLMS.filter(x => x !== id);
+            } else {
+                state.selectedLMS.push(id);
+            }
+            updateCharts();
+        }
+
+        function renderCatalog(data) {
+            const container = document.getElementById('lms-grid');
+            container.innerHTML = data.map(lms => `
+                <div class="lms-card bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex flex-col h-full">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="text-xl font-bold text-slate-800">${lms.name}</h4>
+                        <div class="flex gap-1">
+                            ${lms.tags.slice(0,2).map(t => `<span class="text-[10px] uppercase bg-slate-100 text-slate-500 px-2 py-1 rounded">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4 flex-grow">${lms.desc}</p>
+                    
+                    <div class="mb-4">
+                        <div class="text-xs font-bold text-slate-400 mb-1">ЛУЧШЕ ВСЕГО ДЛЯ:</div>
+                        <div class="text-sm text-slate-800 font-medium">${lms.bestFor}</div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-xs mb-4 bg-slate-50 p-3 rounded-lg">
+                        <div>
+                            <span class="block text-slate-400">Плюсы</span>
+                            <ul class="list-disc list-inside text-teal-700 mt-1">
+                                ${lms.pros.slice(0,2).map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div>
+                            <span class="block text-slate-400">Минусы</span>
+                            <ul class="list-disc list-inside text-rose-700 mt-1">
+                                ${lms.cons.slice(0,2).map(c => `<li>${c}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs text-slate-400 block">Старт от</span>
+                            <span class="font-bold text-slate-800">${lms.basePrice} ₽</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block">UX Оценка</span>
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-orange-500">${lms.stats.ux}/10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCatalog(filter) {
+            let filtered = lmsData;
+            if (filter !== 'all') {
+                filtered = lmsData.filter(lms => lms.tags.includes(filter));
+            }
+            renderCatalog(filtered);
+        }
+
+        // --- CHARTS ---
+        let radarChart, priceChart;
+
+        function initCharts() {
+            // Radar Chart Config
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            radarChart = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['Маркетинг & CRM', 'UX Ученика', 'Функционал', 'Мобильность', 'Простота'],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 10,
+                            ticks: { display: false },
+                            pointLabels: { font: { size: 11, family: 'Noto Sans' } }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10 } }
+                    }
+                }
+            });
+
+            // Bar Chart Config
+            const ctxPrice = document.getElementById('priceChart').getContext('2d');
+            priceChart = new Chart(ctxPrice, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Стоимость (руб/мес)',
+                        data: [],
+                        backgroundColor: 'rgba(20, 184, 166, 0.6)', // Teal-500
+                        borderColor: 'rgba(20, 184, 166, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            const activeLMS = lmsData.filter(l => state.selectedLMS.includes(l.id));
+
+            // 1. Update Radar
+            const colors = [
+                'rgba(249, 115, 22, 0.4)', // Orange
+                'rgba(59, 130, 246, 0.4)', // Blue
+                'rgba(16, 185, 129, 0.4)', // Green
+                'rgba(139, 92, 246, 0.4)', // Purple
+                'rgba(236, 72, 153, 0.4)', // Pink
+                'rgba(100, 116, 139, 0.4)'  // Slate
+            ];
+
+            radarChart.data.datasets = activeLMS.map((lms, index) => ({
+                label: lms.name,
+                data: [lms.stats.marketing, lms.stats.ux, lms.stats.func, lms.stats.mobile, lms.stats.simple],
+                backgroundColor: colors[index % colors.length],
+                borderColor: colors[index % colors.length].replace('0.4', '1'),
+                borderWidth: 2,
+                pointRadius: 0
+            }));
+            radarChart.update();
+
+            // 2. Update Price
+            // Rough calc: Base price + (students / 1000 * scale factor)
+            // Note: This is a heavy simplification of complex tiered pricing
+            priceChart.data.labels = activeLMS.map(l => l.name);
+            priceChart.data.datasets[0].data = activeLMS.map(l => {
+                // Calculation logic simulation
+                if (l.id === 'zen') return 2700; // Flat price mostly
+                let estimated = l.basePrice;
+                
+                // GetCourse tiers logic approx
+                if (l.id === 'gc' || l.id === 'axl') {
+                    if (state.studentCount > 1000) estimated = 28000;
+                    if (state.studentCount > 2000) estimated = 45000;
+                } else {
+                     // Linear scaling for others
+                    estimated += (state.studentCount / 1000) * (l.pricePer1000 * 0.2); 
+                }
+                
+                return Math.round(estimated);
+            });
+            priceChart.update();
+        }
+
+    </script>
+</body>
+</html>
